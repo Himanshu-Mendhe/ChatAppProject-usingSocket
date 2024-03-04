@@ -4,11 +4,8 @@ const chatSchema  = new mongoose.Schema({
     content: {
         type: String
     },
-    user1: {
+    user: {
         type: String
-    },
-    user2: {
-        type:String
     },
     roomId: {
         type:String

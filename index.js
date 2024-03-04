@@ -3,6 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const connect = require('./config/db-config');
 const ejs = require('ejs');
+const Chat = require('./models/chat');
 
 const app = express();
 const server = http.createServer(app);
@@ -14,9 +15,14 @@ io.on('connection', (socket) => {
         socket.join(data.roomId);
     })
 
-    socket.on('msg_send', (data) => {
+    socket.on('msg_send', async (data) => {
         console.log(data);
 
+        const chat = await Chat.create({
+            roomId: data.roomId,
+            user: data.username,
+            content: data.msg
+        });
         io.to(data.roomId).emit('msg_recived', data); //both/ everyoe could see it
         //socket.broadcast.emit('msg_recived', data);// only receiver could see it
         //socket.emit('msg_recived', data)// only sender could see it
@@ -25,7 +31,7 @@ io.on('connection', (socket) => {
 
 app.set('view engine', 'ejs')
 app.use('/',express.static(__dirname + '/public')); //deduct all static files like html static
-app.get('/chat/:roomId', (req,res) => {
+app.get('/chat/:roomId', async(req,res) => {
     res.render('index', {
         name: 'himanshu',
         id: req.params.roomId
